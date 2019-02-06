@@ -20,11 +20,11 @@
 
 #include "RoboRioPixy2USBJNI.h"
 #include "libpixyusb2.h"
-#include "get_raw_frame.h"
 
 #include <cameraserver/CameraServer.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 Pixy2 pixy;
 
@@ -56,25 +56,35 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBStartCameraServ
 {
    std::cout << "Starting CameraServer..." << std::endl;
    uint8_t *bayerFrame;
-   uint32_t rgbFrame[PIXY2_RAW_FRAME_WIDTH*PIXY2_RAW_FRAME_HEIGHT];
    // need to call stop() befroe calling getRawFrame().
    // Note, you can call getRawFrame multiple times after calling stop().
    // That is, you don't need to call stop() each time.
    pixy.m_link.stop();
    cs::CvSource outputStreamStd = frc::CameraServer::GetInstance()->PutVideo("Target Reticle", PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT);
+   cv::Mat bayerMat(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CV_8U);
    cv::Mat output(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CV_8UC3);
-   // cv::rectangle(output, cv::Point(160, 120), cv::Point(480, 360), cv::Scalar(0, 0, 255), 4);
+
    while(true) {
       // grab raw frame, BGGR Bayer format, 1 byte per pixel
       pixy.m_link.getRawFrame(&bayerFrame);
       // convert Bayer frame to RGB frame
-      demosaic(PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT, bayerFrame, rgbFrame);
-      output.data = (uint8_t*)rgbFrame;
+      bayerMat.data = bayerFrame;
+
+      // Reticle overlay example using OpenCV
+      cv::cvtColor(bayerMat, output, cv::COLOR_BayerBG2RGB);
+      cv::circle(output, cv::Point(158, 104), 50, cv::Scalar(255, 0, 0, 0.4), 2);
+      cv::line(output, cv::Point(108, 104), cv::Point(208, 104), cv::Scalar(255, 0, 0, 0.4), 2);
+      cv::line(output, cv::Point(158, 54), cv::Point(158, 154), cv::Scalar(255, 0, 0, 0.4), 2);
+
+      // Rectangle examples
+      // cv::rectangle(output, cv::Point(79, 52), cv::Point(237, 156), cv::Scalar(255, 0, 0), 2);
+      // cv::rectangle(output, cv::Point(79, 52), cv::Point(237, 156), cv::Scalar(255, 0, 0), 2);
+      
       outputStreamStd.PutFrame(output);
       // Call resume() to resume the current program, otherwise Pixy will be left
       // in "paused" state.  
       pixy.m_link.resume();
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      pixy.m_link.stop();
    }
 }
 
