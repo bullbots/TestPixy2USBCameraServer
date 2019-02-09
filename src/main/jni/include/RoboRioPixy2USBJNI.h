@@ -47,6 +47,14 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLampOff
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBStartCameraServer
   (JNIEnv *, jobject);
 
+/*
+ * Class:     frc_robot_vision_Pixy2USBJNI
+ * Method:    pixy2USBLoopCameraServer
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServer
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
