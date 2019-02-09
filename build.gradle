@@ -1,8 +1,10 @@
+import edu.wpi.first.gradlerio.frc.FRCPlugin
+
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2019.2.1"
     id "cpp"
-    id 'edu.wpi.first.GradleJni' version '0.3.1'
+    id "edu.wpi.first.GradleJni" version "0.3.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -35,6 +37,14 @@ deploy {
             // Deploy to RoboRIO target, into /home/lvuser/deploy
             targets << "roborio"
             directory = '/home/lvuser/deploy'
+        }
+        // This is still kind of clunky but it gets the files over there if they have been changed.
+        // This still does not guarantee that the files have had their permissions changed.
+        // It also does not guarantee that the libpixy2_usb.so has already been built
+        fileCollectionArtifact('sharedObjectFileCollectionArtifact') {
+            files = files(['libs/libpixy2.so', 'libs/libusb-1.0.so', 'build/libs/pixy2_usb/shared/release/libpixy2_usb.so'])
+            targets << "roborio"
+            directory = FRCPlugin.LIB_DEPLOY_DIR
         }
     }
 }
