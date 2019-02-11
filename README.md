@@ -6,4 +6,4 @@ This code is still an active work-in-progress and as such still has some glitchi
 ## Getting started
 
 It is very important, for the time being, that you build the code first before you try to deploy it.
-There is unfortunately not a hook in place yet to make sure that necessary .so JNI is build before this code is deployed.
+There is unfortunately not a hook in place yet to make sure that necessary .so JNI is built before this code is deployed.
