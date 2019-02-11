@@ -45,7 +45,6 @@ public class Pixy2USBJNI implements Runnable {
         pixy2USBJNI.pixy2USBLampOn();
         lampOn = true;
 
-        // System.out.println("Starting C++ CameraServer...");
         pixy2USBJNI.pixy2USBStartCameraServer();
 
         while(true) {
@@ -55,6 +54,5 @@ public class Pixy2USBJNI implements Runnable {
             }
             pixy2USBJNI.pixy2USBLoopCameraServer();
         }
-        
     }
 }
