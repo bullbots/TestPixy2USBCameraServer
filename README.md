@@ -10,8 +10,10 @@ There is unfortunately not a hook in place yet to make sure that necessary .so J
 
 ### Must deploy frcNativeArtifact
 
-I am still working through the issue as well where one must deploy an frcNativeArtifact in order to get the following libraries:
+I am still working through the issue as well where one must deploy an frcNativeArtifact first in order to get the following libraries:
 
 Task :deployFrcUserProgramLibrariesRoborio
-    -F-> *\linux\athena\shared\libwpilibcd.so -> libwpilibcd.so @ /usr/local/frc/third-party/lib
-    -F-> *\linux\athena\shared\libcameraserverd.so -> libcameraserverd.so @ /usr/local/frc/third-party/lib
+
+-F-> *\linux\athena\shared\libwpilibcd.so -> libwpilibcd.so @ /usr/local/frc/third-party/lib
+
+-F-> *\linux\athena\shared\libcameraserverd.so -> libcameraserverd.so @ /usr/local/frc/third-party/lib
