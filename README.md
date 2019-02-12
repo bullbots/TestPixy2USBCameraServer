@@ -5,15 +5,7 @@ This code is still an active work-in-progress and as such still has some glitchi
 
 ## Getting started
 
-It is very important, for the time being, that you build the code first before you try to deploy it.
-There is unfortunately not a hook in place yet to make sure that necessary .so JNI is built before this code is deployed.
+This code seems to be mostly working, but it might have some bugs. I once had to delete the file /usr/local/frc/third-party/lib/libusb-1.0.so
+after a fresh restart, but I'm not sure if that was just a remnant of my having tested this library before.
 
-### Must deploy frcNativeArtifact
-
-I am still working through the issue as well where one must deploy an frcNativeArtifact first in order to get the following libraries:
-
-Task :deployFrcUserProgramLibrariesRoborio
-
--F-> *\linux\athena\shared\libwpilibcd.so -> libwpilibcd.so @ /usr/local/frc/third-party/lib
-
--F-> *\linux\athena\shared\libcameraserverd.so -> libcameraserverd.so @ /usr/local/frc/third-party/lib
+Don't forget that the robot must be enabled in order to Send any commands like the ToggleLampCommand.
