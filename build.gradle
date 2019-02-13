@@ -1,4 +1,5 @@
 import edu.wpi.first.gradlerio.frc.FRCPlugin
+import edu.wpi.first.toolchain.NativePlatforms
 
 plugins {
     id "java"
@@ -38,13 +39,16 @@ deploy {
             targets << "roborio"
             directory = '/home/lvuser/deploy'
         }
-        // This is still kind of clunky but it gets the files over there if they have been changed.
-        // This still does not guarantee that the files have had their permissions changed.
-        // It also does not guarantee that the libpixy2_usb.so has already been built
         fileCollectionArtifact('sharedObjectFileCollectionArtifact') {
-            files = files(['libs/libpixy2.so', 'libs/libusb-1.0.so', 'build/libs/pixy2_usb/shared/release/libpixy2_usb.so'])
+            files = files(['libs/libpixy2.so', 'libs/libusb-1.0.so'])
             targets << "roborio"
             directory = FRCPlugin.LIB_DEPLOY_DIR
+        }
+        nativeArtifact('pixy2_usb') {
+            targetPlatform = NativePlatforms.roborio
+            targets << "roborio"
+            directory = FRCPlugin.LIB_DEPLOY_DIR
+            buildType = 'release'
         }
     }
 }
