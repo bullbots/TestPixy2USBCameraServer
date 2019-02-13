@@ -34,26 +34,25 @@ cs::CvSource outputStreamStd;
 cv::Mat bayerMat(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CV_8U);
 cv::Mat output(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CV_8UC3);
 
-JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBInit(JNIEnv *env, jobject thisObj) {
-   std::cout << "Hello World from pixy2 usb init" << std::endl;
-   pixy.init();
-   return;
+JNIEXPORT jint JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBInit(JNIEnv *env, jobject thisObj) {
+   std::cout << "pixy2 usb init" << std::endl;
+   return pixy.init();
 }
 
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBGetVersion(JNIEnv *env, jobject thisObj) {
-   std::cout << "Hello World from pixy2 usb get version" << std::endl;
+   std::cout << "pixy2 usb get version" << std::endl;
    pixy.version->print();
    return;
 }
 
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLampOn(JNIEnv *env, jobject thisObj) {
-   std::cout << "Hello World from pixy2 usb Lamp On" << std::endl;
+   std::cout << "pixy2 usb Lamp On" << std::endl;
    pixy.setLamp(0x01, 0x00);
    return;
 }
 
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLampOff(JNIEnv *env, jobject thisObj) {
-   std::cout << "Hello World from pixy2 usb Lamp Off" << std::endl;
+   std::cout << "pixy2 usb Lamp Off" << std::endl;
    pixy.setLamp(0x00, 0x00);
    return;
 }

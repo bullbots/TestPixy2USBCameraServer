@@ -12,7 +12,7 @@ extern "C" {
  * Method:    pixy2USBInit
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBInit
+JNIEXPORT jint JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBInit
   (JNIEnv *, jobject);
 
 /*
