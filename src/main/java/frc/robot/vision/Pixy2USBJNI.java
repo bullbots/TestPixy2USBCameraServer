@@ -8,7 +8,7 @@ public class Pixy2USBJNI implements Runnable {
     }
   
     // Declare an instance native method sayHello() which receives no parameter and returns void
-    private native void pixy2USBInit();
+    private native int pixy2USBInit();
 
     private native void pixy2USBGetVersion();
 
@@ -40,19 +40,23 @@ public class Pixy2USBJNI implements Runnable {
     @Override
     public void run() {
         pixy2USBJNI = new Pixy2USBJNI();
-        pixy2USBJNI.pixy2USBInit();
-        pixy2USBJNI.pixy2USBGetVersion();
-        pixy2USBJNI.pixy2USBLampOn();
-        lampOn = true;
-
-        pixy2USBJNI.pixy2USBStartCameraServer();
-
-        while(true) {
-            if (toggleLamp.get()) {
-                toggleLamp();
-                toggleLamp.set(false);
+        int init_result = pixy2USBJNI.pixy2USBInit();
+        if (init_result == 0) {
+            pixy2USBJNI.pixy2USBGetVersion();
+            pixy2USBJNI.pixy2USBLampOn();
+            lampOn = true;
+    
+            pixy2USBJNI.pixy2USBStartCameraServer();
+    
+            while(true) {
+                if (toggleLamp.get()) {
+                    toggleLamp();
+                    toggleLamp.set(false);
+                }
+                pixy2USBJNI.pixy2USBLoopCameraServer();
             }
-            pixy2USBJNI.pixy2USBLoopCameraServer();
+        } else {
+            System.err.println("[WARNING] is the Pixy2 plugged in???");
         }
     }
 }
