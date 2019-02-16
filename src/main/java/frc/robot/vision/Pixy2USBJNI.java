@@ -99,7 +99,7 @@ public class Pixy2USBJNI implements Runnable {
                 cycleCounter = 0;
                 if (!fetchFrame) {
                     System.out.println("[INFO] Resuming camera");
-                    // fetchFrame = true;
+                    fetchFrame = true;
                 }
                 System.out.println("[INFO] No blocks detected");
             }
