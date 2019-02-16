@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLampOff
 
 /*
  * Class:     frc_robot_vision_Pixy2USBJNI
+ * Method:    pixy2USBGetBlocks
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBGetBlocks
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     frc_robot_vision_Pixy2USBJNI
  * Method:    pixy2USBStartCameraServer
  * Signature: ()V
  */

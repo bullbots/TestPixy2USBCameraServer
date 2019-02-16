@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.TogglePixy2LampCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.vision.Block;
 import frc.robot.vision.Pixy2USBJNI;
 
 /**
@@ -58,6 +59,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    // It is important to use "poll" here because it is non-blocking, 
+    //  and we don't want to make the robot wait for this.
+    Block[] blocks = Pixy2USBJNI.blocksBuffer.poll();
+    if (blocks != null) {
+      for (Block b : blocks) {
+        System.out.println(b.toString());
+      }
+    }
   }
 
   /**

@@ -149,9 +149,11 @@ template <class LinkType> int8_t Pixy2CCC<LinkType>::getBlocks(bool wait, uint8_
       }
 	  // deal with busy and program changing states from Pixy (we'll wait)
       else if (m_pixy->m_type==PIXY_TYPE_RESPONSE_ERROR)
-      {
+      { 
+        std::cout << "getBlocks: PIXY_TYPE_RESPONSE_ERROR" << std::endl;
         if ((int8_t)m_pixy->m_buf[0]==PIXY_RESULT_BUSY)
         {
+          std::cout << "getBlocks: PIXY_RESULT_BUSY" << std::endl;
           if(!wait)
             return PIXY_RESULT_BUSY; // new data not available yet
 		}

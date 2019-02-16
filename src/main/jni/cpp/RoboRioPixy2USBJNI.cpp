@@ -57,6 +57,41 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLampOff(JNIEnv 
    return;
 }
 
+JNIEXPORT jstring JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBGetBlocks(JNIEnv *env, jobject thisObj)
+{
+   int  Block_Index;
+
+   // Query Pixy for blocks //
+   int result = pixy.ccc.getBlocks();
+   std::cout << "Get blocks result: " << result << std::endl;
+
+   std::stringstream ss;
+
+   // Were blocks detected? //
+   if (result >= 0) {
+      if (pixy.ccc.numBlocks)
+      {
+         // Blocks detected - print them! //
+         std::cout << "Getting num blocks: " << (int) pixy.ccc.numBlocks << std::endl;
+
+         for (Block_Index = 0; Block_Index < pixy.ccc.numBlocks; ++Block_Index)
+         {
+            // printf ("  Block %d: ", Block_Index + 1);
+            ss << "block " << Block_Index + 1 << " : ";
+            ss << pixy.ccc.blocks[Block_Index].str();
+            if (Block_Index < pixy.ccc.numBlocks-1) {
+                  ss << std::endl;
+            }
+            //   pixy.ccc.blocks[Block_Index].print();
+         }
+      }
+   } else if (result == -2) {
+      ss << result << std::endl;
+   }
+
+   return env->NewStringUTF(ss.str().c_str());
+}
+
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBStartCameraServer(JNIEnv *env, jobject thisObj)
 {
    std::cout << "Starting CameraServer..." << std::endl;
@@ -66,25 +101,28 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBStartCameraServ
 //   camera1 = frc::CameraServer::GetInstance()->StartAutomaticCapture(1);
 //   camera1.SetResolution(640, 480);
    
-   // need to call stop() before calling getRawFrame().
-   // Note, you can call getRawFrame multiple times after calling stop().
-   // That is, you don't need to call stop() each time.
-   pixy.m_link.stop();
    outputStreamStd = frc::CameraServer::GetInstance()->PutVideo("Target Reticle", PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT);
 }
 
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServer(JNIEnv *env, jobject thisObj)
 {
+   // need to call stop() before calling getRawFrame().
+   // Note, you can call getRawFrame multiple times after calling stop().
+   // That is, you don't need to call stop() each time.
+   pixy.m_link.stop();
+
    // grab raw frame, BGGR Bayer format, 1 byte per pixel
    pixy.m_link.getRawFrame(&bayerFrame);
+
    // convert Bayer frame to RGB frame
    bayerMat.data = bayerFrame;
 
    // Reticle overlay example using OpenCV
    cv::cvtColor(bayerMat, output, cv::COLOR_BayerBG2RGB);
-   cv::circle(output, cv::Point(158, 104), 50, cv::Scalar(255, 0, 0, 0.4), 2);
-   cv::line(output, cv::Point(108, 104), cv::Point(208, 104), cv::Scalar(255, 0, 0, 0.4), 2);
-   cv::line(output, cv::Point(158, 54), cv::Point(158, 154), cv::Scalar(255, 0, 0, 0.4), 2);
+
+   // cv::circle(output, cv::Point(158, 104), 50, cv::Scalar(255, 0, 0, 0.4), 2);
+   // cv::line(output, cv::Point(108, 104), cv::Point(208, 104), cv::Scalar(255, 0, 0, 0.4), 2);
+   // cv::line(output, cv::Point(158, 54), cv::Point(158, 154), cv::Scalar(255, 0, 0, 0.4), 2);
 
    // Rectangle examples
    // cv::rectangle(output, cv::Point(79, 52), cv::Point(237, 156), cv::Scalar(255, 0, 0), 2);
@@ -93,5 +131,4 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServe
    outputStreamStd.PutFrame(output);
    // Call resume() to resume the current program, otherwise Pixy will be left in "paused" state.
    pixy.m_link.resume();
-   pixy.m_link.stop();
 }
