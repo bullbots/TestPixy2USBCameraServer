@@ -63,7 +63,7 @@ JNIEXPORT jstring JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBGetBlocks(JN
 
    // Query Pixy for blocks //
    int result = pixy.ccc.getBlocks();
-   std::cout << "Get blocks result: " << result << std::endl;
+   // std::cout << "Get blocks result: " << result << std::endl;
 
    std::stringstream ss;
 
@@ -72,7 +72,7 @@ JNIEXPORT jstring JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBGetBlocks(JN
       if (pixy.ccc.numBlocks)
       {
          // Blocks detected - print them! //
-         std::cout << "Getting num blocks: " << (int) pixy.ccc.numBlocks << std::endl;
+         // std::cout << "Getting num blocks: " << (int) pixy.ccc.numBlocks << std::endl;
 
          for (Block_Index = 0; Block_Index < pixy.ccc.numBlocks; ++Block_Index)
          {

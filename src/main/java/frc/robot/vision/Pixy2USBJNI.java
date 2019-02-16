@@ -29,7 +29,7 @@ public class Pixy2USBJNI implements Runnable {
 
     private double m_expirationTime;
     private final int m_notifier = NotifierJNI.initializeNotifier();
-    private final double m_period = .02; //Milliseconds?
+    private final double m_period = .3; //Milliseconds?
 
     private Pixy2USBJNI pixy2USBJNI;
 
@@ -94,11 +94,12 @@ public class Pixy2USBJNI implements Runnable {
         String visionStuffs = pixy2USBJNI.pixy2USBGetBlocks();
 
         if (visionStuffs.equals("")) {
-            if (++cycleCounter > 20) {
+            // fetchFrame = true;
+            if (++cycleCounter > 3) {
                 cycleCounter = 0;
                 if (!fetchFrame) {
                     System.out.println("[INFO] Resuming camera");
-                    fetchFrame = true;
+                    // fetchFrame = true;
                 }
                 System.out.println("[INFO] No blocks detected");
             }
@@ -158,14 +159,12 @@ public class Pixy2USBJNI implements Runnable {
         }
 
         if (fetchFrame) {
+            // System.out.println("Sending frame...");
             pixy2USBJNI.pixy2USBLoopCameraServer();
         }
-
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        // else {
+        //     System.out.println("Camera paused...");
+        // }
     }
 
     private void updateAlarm(){
