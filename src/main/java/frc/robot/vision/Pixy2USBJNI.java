@@ -25,7 +25,7 @@ public class Pixy2USBJNI implements Runnable {
 
     private native void pixy2USBStartCameraServer();
 
-    private native void pixy2USBLoopCameraServer();
+    private native void pixy2USBLoopCameraServer(int[][] blocksArray);
 
     private double m_expirationTime;
     private final int m_notifier = NotifierJNI.initializeNotifier();
@@ -37,6 +37,7 @@ public class Pixy2USBJNI implements Runnable {
     private boolean lampOn = false;
     private int cycleCounter = 0;
     private static Block[] blocks;
+    private int[][] blocksArray;
     private boolean fetchFrame = true;
     public static final ArrayBlockingQueue<Block[]> blocksBuffer = new ArrayBlockingQueue<>(2);
 
@@ -92,6 +93,8 @@ public class Pixy2USBJNI implements Runnable {
         }
         
         String visionStuffs = pixy2USBJNI.pixy2USBGetBlocks();
+        int arrayIndex = 0;
+        blocksArray = new int[0][0];
 
         if (visionStuffs.equals("")) {
             // fetchFrame = true;
@@ -113,8 +116,7 @@ public class Pixy2USBJNI implements Runnable {
                 cycleCounter = 0;
                 String[] visionParts = visionStuffs.split("\n");
                 blocks = new Block[visionParts.length];
-                
-                int arrayIndex = 0;
+                blocksArray = new int[visionParts.length][7];
                 
                 for (String s : visionParts) {
                     if(!s.isEmpty() && !s.isBlank() && !s.equals(null) && !s.equals("")) {
@@ -138,7 +140,9 @@ public class Pixy2USBJNI implements Runnable {
                             sc.next();
                             int age = sc.nextInt();
         
-                            blocks[arrayIndex++] = new Block(sig, x, y, width, height, index, age);
+                            blocks[arrayIndex] = new Block(sig, x, y, width, height, index, age);
+                            blocksArray[arrayIndex] = blocks[arrayIndex].toArray();
+                            arrayIndex++;
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -160,7 +164,8 @@ public class Pixy2USBJNI implements Runnable {
 
         if (fetchFrame) {
             // System.out.println("Sending frame...");
-            pixy2USBJNI.pixy2USBLoopCameraServer();
+
+            pixy2USBJNI.pixy2USBLoopCameraServer(blocksArray);
         }
         // else {
         //     System.out.println("Camera paused...");

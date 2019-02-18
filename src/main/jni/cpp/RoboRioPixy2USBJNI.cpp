@@ -15,8 +15,7 @@
 #include <jni.h>
 #include <iostream>
 #include <sstream>
-#include <thread>
-#include <chrono>
+#include <map>
 
 #include "RoboRioPixy2USBJNI.h"
 #include "libpixyusb2.h"
@@ -33,6 +32,14 @@ uint8_t *bayerFrame;
 cs::CvSource outputStreamStd;
 cv::Mat bayerMat(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CV_8U);
 cv::Mat output(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CV_8UC3);
+std::map <int, cv::Scalar> colorMap = {{1, cv::Scalar(0, 0, 255)}, 
+                                       {2, cv::Scalar(165, 0, 255)},
+                                       {3, cv::Scalar(255, 0 ,255)},
+                                       {4, cv::Scalar(0, 255, 0)},
+                                       {5, cv::Scalar(255, 255, 0)},
+                                       {6, cv::Scalar(255, 0, 0)},
+                                       {7, cv::Scalar(238, 130, 238)}};
+const float MAX_FONT_IMAGE_HEIGHT = 100.0;
 
 JNIEXPORT jint JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBInit(JNIEnv *env, jobject thisObj) {
    std::cout << "pixy2 usb init" << std::endl;
@@ -104,7 +111,7 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBStartCameraServ
    outputStreamStd = frc::CameraServer::GetInstance()->PutVideo("Target Reticle", PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT);
 }
 
-JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServer(JNIEnv *env, jobject thisObj)
+JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServer(JNIEnv *env, jobject thisObj, jobjectArray objArr)
 {
    // need to call stop() before calling getRawFrame().
    // Note, you can call getRawFrame multiple times after calling stop().
@@ -119,6 +126,44 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServe
 
    // Reticle overlay example using OpenCV
    cv::cvtColor(bayerMat, output, cv::COLOR_BayerBG2RGB);
+
+   // If they exist, draw object boxes on top of frame
+   jsize len = env->GetArrayLength(objArr);
+
+   for (int i=0; i<len; ++i) {
+      jintArray arr = (jintArray) env->GetObjectArrayElement(objArr, i);
+      jsize innerLen = env->GetArrayLength(arr);
+      jint* vals = env->GetIntArrayElements(arr, NULL);
+
+      int sig = vals[0];
+      int center_x = vals[1];
+      int center_y = vals[2];
+      int width = vals[3];
+      int height = vals[4];
+      int index = vals[5];
+      int age = vals[6];
+
+      cv::Point top_left(center_x - width / 2, center_y - height / 2);
+      cv::Point bottom_right(center_x + width / 2, center_y + height / 2);
+
+      cv::Point text_org(center_x, center_y);
+      std::ostringstream oss;
+      oss << "S=" << sig;
+
+      float font_scale = height / MAX_FONT_IMAGE_HEIGHT;
+
+      if (height > MAX_FONT_IMAGE_HEIGHT * 0.75) {
+         font_scale = 0.75;
+      } else if (height < MAX_FONT_IMAGE_HEIGHT * 0.5) {
+         font_scale = 0.5;
+      }
+
+      cv::putText(output, oss.str(), text_org, cv::FONT_HERSHEY_COMPLEX, font_scale, colorMap[sig]);
+      cv::rectangle(output, top_left, bottom_right, colorMap[sig], 1);
+
+      env->ReleaseIntArrayElements(arr, vals, JNI_COMMIT);
+      env->DeleteLocalRef(arr);
+   }
 
    // cv::circle(output, cv::Point(158, 104), 50, cv::Scalar(255, 0, 0, 0.4), 2);
    // cv::line(output, cv::Point(108, 104), cv::Point(208, 104), cv::Scalar(255, 0, 0, 0.4), 2);

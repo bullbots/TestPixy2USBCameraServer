@@ -31,4 +31,9 @@ public class Block {
         sb.append(" age: " + age);
         return sb.toString();
     }
+
+    public int[] toArray() {
+        int[] returnArr = {sig, x, y, width, height, index, age};
+        return returnArr;
+    }
 }

@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBStartCameraServ
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServer
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobjectArray objArr);
 
 #ifdef __cplusplus
 }
