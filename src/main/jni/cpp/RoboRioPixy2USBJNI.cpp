@@ -18,9 +18,10 @@
 #include <thread>
 #include <chrono>
 
-#include "RoboRioPixy2USBJNI.h"
+#include "frc_robot_vision_Pixy2USBJNI.h"
 #include "libpixyusb2.h"
 
+#include <cscore.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -53,7 +54,14 @@ JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLampOff(JNIEnv 
    return;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2GetMatDataRGBFrame(JNIEnv *env, jobject thisObj)
+CS_Source source;
+
+JNIEXPORT void JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBInitCameraServer
+  (JNIEnv *env, jobject, jint csHandle) {
+     source = static_cast<CS_Source>(csHandle);
+}
+
+JNIEXPORT jint JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2USBLoopCameraServer(JNIEnv *env, jobject thisObj)
 {
    // need to call stop() before calling getRawFrame().
    // Note, you can call getRawFrame multiple times after calling stop().
@@ -67,15 +75,11 @@ JNIEXPORT jbyteArray JNICALL Java_frc_robot_vision_Pixy2USBJNI_pixy2GetMatDataRG
 
    // Using OpenCV for conversion to RGB
    cv::cvtColor(bayerMat, output, cv::COLOR_BayerBG2RGB);
-      
+
    // Call resume() to resume the current program, otherwise Pixy will be left in "paused" state.
    pixy.m_link.resume();
 
-   jbyteArray outJNIArray = env->NewByteArray(PIXY2_RAW_FRAME_HEIGHT * PIXY2_RAW_FRAME_WIDTH * 3);
-
-   if (NULL == outJNIArray) return NULL;
-
-   env->SetByteArrayRegion(outJNIArray, 0, PIXY2_RAW_FRAME_HEIGHT * PIXY2_RAW_FRAME_WIDTH * 3, (const jbyte*) output.data);
-
-   return outJNIArray;
+   CS_Status status = 0;
+   cs::PutSourceFrame(source, output, &status);
+   return status;
 }
