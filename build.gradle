@@ -124,7 +124,7 @@ model {
                 lib library: "libusb-1.0"
             }
             // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-            useLibrary(it, "wpilib")
+            useLibrary(it, "wpilibjni")
         }
     }
 }
