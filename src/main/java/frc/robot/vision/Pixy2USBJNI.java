@@ -2,9 +2,6 @@ package frc.robot.vision;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -13,7 +10,7 @@ public class Pixy2USBJNI implements Runnable {
     static {
        System.loadLibrary("pixy2_usb");
     }
-  
+
     private native int pixy2USBInit();
 
     private native void pixy2USBGetVersion();
@@ -22,7 +19,14 @@ public class Pixy2USBJNI implements Runnable {
 
     private native void pixy2USBLampOff();
 
-    private native byte[] pixy2GetMatDataRGBFrame();
+    private native void pixy2USBInitCameraServer(int source);
+
+    private void pixy2USBInitCameraServer(CvSource source) {
+        pixy2USBInitCameraServer(source.getHandle());
+    }
+
+    // Return value is status of PutFrame
+    private native int pixy2USBLoopCameraServer();
 
     private static final int PIXY2_RAW_FRAME_WIDTH = 316;
     private static final int PIXY2_RAW_FRAME_HEIGHT = 208;
@@ -58,20 +62,16 @@ public class Pixy2USBJNI implements Runnable {
             pixy2USBJNI.pixy2USBGetVersion();
             pixy2USBJNI.pixy2USBLampOn();
             lampOn = true;
-    
+
             CvSource outputStream = CameraServer.getInstance().putVideo("Target Reticle", PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT);
-            Mat output = new Mat(PIXY2_RAW_FRAME_HEIGHT, PIXY2_RAW_FRAME_WIDTH, CvType.CV_8UC3);
+            pixy2USBJNI.pixy2USBInitCameraServer(outputStream);
 
             while(true) {
                 if (toggleLamp.get()) {
                     toggleLamp();
                     toggleLamp.set(false);
                 }
-                byte[] matDataRGBFrame = pixy2USBJNI.pixy2GetMatDataRGBFrame();
-                if (matDataRGBFrame != null) {
-                    output.put(0, 0, matDataRGBFrame);
-                    outputStream.putFrame(output);
-                }
+                pixy2USBJNI.pixy2USBLoopCameraServer();
             }
         } else {
             System.err.println("WARNING: is the Pixy2 plugged in???");
