@@ -4,6 +4,8 @@ import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import edu.wpi.cscore.CvSource;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.hal.NotifierJNI;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -23,15 +25,23 @@ public class Pixy2USBJNI implements Runnable {
 
     private native String pixy2USBGetBlocks();
 
-    private native void pixy2USBStartCameraServer();
+    private native void pixy2USBInitCameraServer(int source);
 
-    private native void pixy2USBLoopCameraServer(int[][] blocksArray);
+    private void pixy2USBInitCameraServer(CvSource source) {
+        pixy2USBInitCameraServer(source.getHandle());
+    }
+
+    // Return value is status of PutFrame
+    private native int pixy2USBLoopCameraServer(int[][] blocksArray);
 
     private double m_expirationTime;
     private final int m_notifier = NotifierJNI.initializeNotifier();
     private final double m_period = .3; //Milliseconds?
 
     private Pixy2USBJNI pixy2USBJNI;
+
+    private static final int PIXY2_RAW_FRAME_WIDTH = 316;
+    private static final int PIXY2_RAW_FRAME_HEIGHT = 208;
 
     public AtomicBoolean toggleLamp = new AtomicBoolean(false);
     private boolean lampOn = false;
@@ -55,16 +65,21 @@ public class Pixy2USBJNI implements Runnable {
 
     @Override
     public void run() {
+        // Uncomment these if you want extra, "regular" USB cameras
+        // UsbCamera camera = CameraServer.getInstance().startAutomaticCapture(0);
+        // camera.setResolution(640, 480);
+        // UsbCamera camera1 = CameraServer.getInstance().startAutomaticCapture(1);
+        // camera1.setResolution(640, 480);
+
         pixy2USBJNI = new Pixy2USBJNI();
         int init_result = pixy2USBJNI.pixy2USBInit();
         if (init_result == 0) {
-            System.out.println("[INFO] Starting Pixy2 Thread");
-
             pixy2USBJNI.pixy2USBGetVersion();
             pixy2USBJNI.pixy2USBLampOn();
             lampOn = true;
     
-            pixy2USBJNI.pixy2USBStartCameraServer();
+            CvSource outputStream = CameraServer.getInstance().putVideo("Target Reticle", PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT);
+            pixy2USBJNI.pixy2USBInitCameraServer(outputStream);
 
             m_expirationTime = RobotController.getFPGATime() * 1e-6 + m_period;
             updateAlarm();
